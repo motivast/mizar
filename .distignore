@@ -1,0 +1,39 @@
+# Dotfiles
+.*
+
+# Executable
+bin
+
+# Packages
+composer.json
+composer.lock
+package.json
+package-lock.json
+yarn.lock
+
+# Libraries
+node_modules
+vendor
+
+# Assets
+assets
+
+# Configuration
+rules
+tasks
+phpunit.xml
+build.xml
+
+# Tests
+tests
+
+# Build
+build
+svn
+
+# Docker
+docker
+docker-compose.yml
+
+# I do not know from where this directory is getting from?
+etc

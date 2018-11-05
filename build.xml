@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="Mizar" default="build">
+
+	<property name="theme"  value="mizar" override="true" />
+	<property name="repository"  value="git@github.com:motivast/mizar.git" override="true" />
+
+	<!-- ============================================  -->
+	<!-- Target: dotenv                                -->
+	<!-- ============================================  -->
+	<target name="dotenv" description="Load environmental variables from system and .env file.">
+		<echo msg="Load environmental variables" />
+
+		<!-- Loads properties from the environment with the specified value as prefix. -->
+		<property environment="env" override="true" />
+
+		<!-- Loads properties from the .env file if exits. -->
+		<property file=".env" prefix="env" />
+
+		<resolvepath propertyName="env.WP_PATH" file="${env.WP_PATH}"/>
+	</target>
+
+	<!-- ============================================  -->
+	<!-- Target: setup:symlink                         -->
+	<!-- ============================================  -->
+	<target name="setup:symlink" description="Symlink proper directories.">
+
+		<echo msg="Symlink proper directories" />
+
+		<!-- ============================================  -->
+		<!-- Symlink theme itself to wp themes dir       -->
+		<!-- ============================================  -->
+		<symlink target="${project.basedir}" link="${project.basedir}/wordpress/wp-content/themes/${theme}"  overwrite="true" />
+	</target>
+
+	<!-- ============================================  -->
+	<!-- Target: setup:githook                         -->
+	<!-- ============================================  -->
+	<target name="setup:githook" description="Create git pre-commit hook to execute inspect task before commit.">
+		<echo msg="Create pre-commit githook" />
+
+		<exec command="mkdir -p .git/hooks; touch .git/hooks/pre-commit; echo '' > .git/hooks/pre-commit; echo '#!/bin/sh' >> .git/hooks/pre-commit; echo './vendor/bin/phing inspect' >> .git/hooks/pre-commit; chmod +x .git/hooks/pre-commit;"/>
+	</target>
+
+	<!-- ============================================  -->
+	<!-- Target: setup                                 -->
+	<!-- ============================================  -->
+	<target name="setup" description="Setup project. Execute setup:symlink, setup:githook.">
+	  <echo msg="Setup project" />
+
+	  <phingcall target="setup:symlink" />
+	  <phingcall target="setup:githook" />
+	</target>
+
+	<!-- ============================================  -->
+	<!-- Target: wp:db:create                          -->
+	<!-- ============================================  -->
+	<target name="wp:db:create" depends="dotenv" description="Create WordPress database.">
+		<echo msg="Create WordPress database" />
+
+		<exec command="./vendor/bin/wp db create --path=${env.WP_PATH} --allow-root" passthru="true" checkreturn="false" />
+	</target>
+
+	<!-- ============================================  -->
+	<!-- Target: wpremovedatabase                      -->
+	<!-- ============================================  -->
+	<target name="wp:db:drop" depends="dotenv" description="Drop WordPress database.">
+		<echo msg="Drop WordPress database" />
+
+		<exec command="./vendor/bin/wp db drop --yes --path=${env.WP_PATH} --allow-root" passthru="true" checkreturn="false" />
+	</target>
+
+	<!-- ============================================  -->
+	<!-- Target: wp:download						   -->
+	<!-- ============================================  -->
+	<target name="wp:download" depends="dotenv" description="Download WordPress.">
+		<echo msg="Download WordPress ${env.WP_VERSION}" />
+
+		<!-- Enviroment variables are loaded by dotenv target -->
+		<exec command="./vendor/bin/wp core download --version=${env.WP_VERSION} --path=${env.WP_PATH} --locale=${env.WP_LOCALE} --skip-content --allow-root --force" passthru="true" />
+
+		<!-- Create required directories -->
+		<echo msg="Create required directories" />
+		<exec command="mkdir -p ${env.WP_PATH}/wp-content/plugins; mkdir -p ${env.WP_PATH}/wp-content/themes"/>
+	</target>
+
+	<!-- ============================================  -->
+	<!-- Target: wpconfig                              -->
+	<!-- ============================================  -->
+	<target name="wp:config" depends="dotenv" description="Generate WordPress wp-config.php.">
+		<echo msg="Generate WordPress wp-config.php" />
+
+		<!-- Enviroment variables are loaded by dotenv target -->
+		<exec command="./vendor/bin/wp core config --dbname=${env.WP_CONFIG_DB_NAME} --dbuser=${env.WP_CONFIG_DB_USER} --dbpass=${env.WP_CONFIG_DB_PASS} --dbhost=${env.WP_CONFIG_DB_HOST} --extra-php=${env.WP_CONFIG_EXTRA} --path=${env.WP_PATH} --allow-root --skip-check --force" passthru="true" />
+	</target>
+
+	<!-- ============================================  -->
+	<!-- Target: wpinstall                             -->
+	<!-- ============================================  -->
+	<target name="wp:install" depends="dotenv" description="Generate WordPress wp-config.php.">
+		<echo msg="Install WordPress" />
+
+		<exec command="./vendor/bin/wp core install --url=${env.WP_URL} --title=${env.WP_TITLE} --admin_user=${env.WP_ADMIN_USER} --admin_password=${env.WP_ADMIN_PASS} --admin_email=${env.WP_ADMIN_EMAIL} --path=${env.WP_PATH} --allow-root" passthru="true" checkreturn="true" />
+	</target>
+
+	<!-- ============================================  -->
+	<!-- Target: wp:permalinks                         -->
+	<!-- ============================================  -->
+	<target name="wp:permalinks" depends="dotenv" description="Activate permalinks structure.">
+		<echo msg="Activate permalinks" />
+
+		<exec command="./vendor/bin/wp rewrite structure '/%postname%/' --path=${env.WP_PATH} --allow-root" passthru="true" checkreturn="true" />
+	</target>
+
+    <!-- ============================================  -->
+    <!-- Target: wp:theme                              -->
+    <!-- ============================================  -->
+    <target name="wp:theme" depends="dotenv" description="Activate project theme">
+        <echo msg="Activate project theme" />
+
+        <exec command="./vendor/bin/wp theme activate ${theme} --path=${env.WP_PATH} --allow-root" passthru="true" checkreturn="true" />
+    </target>
+
+	<!-- ============================================  -->
+	<!-- Target: wp:init                               -->
+	<!-- ============================================  -->
+	<target name="wp:init" description="Initialize WordPress. Execute wp:config, wp:db:create, wp:install, wp:permalinks, wp:plugins.">
+		<echo msg="Init WordPress" />
+
+		<phingcall target="wp:config" />
+		<phingcall target="wp:db:create" />
+		<phingcall target="wp:install" />
+		<phingcall target="wp:permalinks" />
+		<phingcall target="wp:theme" />
+	</target>
+
+	<!-- ============================================  -->
+	<!-- Target: wp:reset                              -->
+	<!-- ============================================  -->
+	<target name="wp:reset" description="Reset WordPress. Execute wp:config, wp:db:drop, wp:db:create, wp:install, wp:permalinks, wp:plugins.">
+		<echo msg="Reset WordPress" />
+
+		<phingcall target="wp:config" />
+		<phingcall target="wp:db:drop" />
+		<phingcall target="wp:db:create" />
+		<phingcall target="wp:install" />
+		<phingcall target="wp:permalinks" />
+		<phingcall target="wp:theme" />
+	</target>
+
+	<!-- ============================================  -->
+	<!-- Target: lint                                  -->
+	<!-- ============================================  -->
+	<target name="inspect:lint" description="Check possible syntax errors in php files using php -l command." depends="setup:symlink">
+		<echo msg="Check possible syntax errors" />
+		<exec command="for i in $(find . \( -path ./vendor -o -path ./wordpress \) -prune -o -name '*.php' -print); do php -l $i; done" passthru="true" checkreturn="true" />
+	</target>
+
+	<!-- ============================================  -->
+	<!-- Target: inspect:phpcs:wp                      -->
+	<!-- ============================================  -->
+	<target name="inspect:phpcs:wp" description="Check posible code styling errors against WordPress rules in php files using phpcs comamnd." depends="setup:symlink">
+		<echo msg="Check posible code styling errors against WordPress rules" />
+		<exec command="./vendor/bin/phpcs  --extensions=php --standard=./rules/phpcs-wordpress.xml" passthru="true" checkreturn="true" />
+	</target>
+
+	<!-- ============================================  -->
+	<!-- Target: inspect:phpcs:php56                   -->
+	<!-- ============================================  -->
+	<target name="inspect:phpcs:php56" description="Check posible code styling errors against PHP 5.6 compability in php files using phpcs comamnd." depends="setup:symlink">
+		<echo msg="Check posible code styling errors against against PHP 5.6 compability" />
+		<exec command="./vendor/bin/phpcs  --extensions=php --standard=./rules/phpcs-php56.xml" passthru="true" checkreturn="true" />
+	</target>
+
+	<!-- ============================================  -->
+	<!-- Target: inspect:phpcs                         -->
+	<!-- ============================================  -->
+	<target name="inspect:phpcs" description="Check posible code styling errors in php files using phpcs comamnd." depends="setup:symlink">
+		<echo msg="Check posible code styling errors" />
+
+		<phingcall target="inspect:phpcs:wp" />
+		<phingcall target="inspect:phpcs:php56" />
+	</target>
+
+	<!-- ============================================  -->
+	<!-- Target: phpmd                                 -->
+	<!-- ============================================  -->
+	<!-- @TODO: phpmd don't want to work with self symlinks. Scan only inc directory for now. -->
+	<target name="inspect:phpmd" description="Check posible mess in php files using phpmd comamnd." depends="setup:symlink">
+		<echo msg="Check posible mess" />
+		<exec command="./vendor/bin/phpmd ./inc text ./rules/phpmd.xml" passthru="true" checkreturn="false" />
+	</target>
+
+	<!-- ============================================  -->
+	<!-- Target: phpcpd                                -->
+	<!-- ============================================  -->
+	<target name="inspect:phpcpd" description="Check posible duplicates in php files using phpcpd comamnd." depends="setup:symlink">
+		<echo msg="Check posible duplicates" />
+		<exec command="./vendor/bin/phpcpd ./ --exclude vendor --exclude wordpress" passthru="true" checkreturn="false" />
+	</target>
+
+	<!-- ============================================  -->
+	<!-- Target: phpcbf                                -->
+	<!-- ============================================  -->
+	<target name="inspect:fix" description="Auto fix code styling errors in php files using phpcbf comamnd." depends="setup:symlink">
+		<echo msg="Auto fix code styling errors" />
+		<exec command="./vendor/bin/phpcbf  --extensions=php --ignore=${project.basedir}/vendor,${project.basedir}/wordpress --standard=./rules/phpcs.xml" passthru="true" checkreturn="true" />
+	</target>
+
+	<target name="inspect" description="Inspect php code. Execute inspect:lint, inspect:phpcs, inspect:phpcpd, inspect:phpmd." depends="inspect:lint, inspect:phpcs, inspect:phpcpd, inspect:phpmd">
+	</target>
+
+	<!-- ============================================  -->
+	<!-- Target: tests:phpunit						   -->
+	<!-- ============================================  -->
+	<target name="tests:phpunit" depends="dotenv" description="Execute tests using phpunit">
+		<echo msg="Execute tests" />
+		<exec command="./vendor/bin/phpunit --configuration phpunit.xml" passthru="true" checkreturn="true" />
+	</target>
+
+	<!-- ============================================  -->
+	<!-- Target: tests                                 -->
+	<!-- ============================================  -->
+	<target name="tests" depends="dotenv, tests:phpunit" description="Execute unit tests. Execute tests:phpunit." />
+
+	<!-- ============================================  -->
+	<!-- Target: build:clean                           -->
+	<!-- ============================================  -->
+	<target name="build:clean" description="Clean build directories.">
+
+		<echo msg="Clean build" />
+
+		<!-- Clean build directory -->
+		<delete dir="${project.basedir}/build/git" quiet="true" />
+		<delete dir="${project.basedir}/build/svn" quiet="true" />
+		<delete dir="${project.basedir}/build/dist" quiet="true" />
+		<delete dir="${project.basedir}/build/archives" quiet="true" />
+
+	</target>
+
+	<!-- ============================================  -->
+	<!-- Target: build:clone                           -->
+	<!-- ============================================  -->
+	<target name="build:clone" description="Clone repository to seperate directory.">
+
+		<echo msg="Create required directories" />
+
+		<mkdir dir="${project.basedir}/build" />
+		<mkdir dir="${project.basedir}/build/git" />
+
+		<echo msg="Clone repository" />
+		<exec command="git clone ${repository} ${project.basedir}/build/git" passthru="true" checkreturn="true" />
+
+	</target>
+
+	<!-- ============================================  -->
+	<!-- Target: build                                 -->
+	<!-- ============================================  -->
+	<target name="build:install" description="Install project dependencies.">
+
+		<echo msg="Install composer dependencies" />
+		<exec command="composer install --no-dev --no-scripts --working-dir=${project.basedir}/build/git" passthru="true" checkreturn="true" />
+
+	</target>
+
+	<!-- ============================================  -->
+	<!-- Target: build:archive                         -->
+	<!-- ============================================  -->
+	<target name="build:archive" depends="dotenv" description="Create archives with production ready plugin files.">
+
+		<echo msg="Create required directories" />
+
+		<mkdir dir="${project.basedir}/build/dist" />
+		<mkdir dir="${project.basedir}/build/archives" />
+
+		<echo msg="Sync files with rsync excluding files from .distignore" />
+		<exec command="rsync -r --exclude-from .distignore ${project.basedir}/build/git/ ${project.basedir}/build/dist" passthru="true" checkreturn="true" />
+
+		<echo msg="Create archives" />
+		<exec command="tar -czf ${project.basedir}/build/archives/${theme}.tar.gz -C ${project.basedir}/build/dist ." passthru="true" checkreturn="true" />
+		<exec command="cd ${project.basedir}/build/dist; zip -r ${project.basedir}/build/archives/${theme}.zip *" passthru="true" checkreturn="true" />
+
+	</target>
+
+	<!-- ============================================  -->
+	<!-- Target: build                                 -->
+	<!-- ============================================  -->
+	<target name="build" description="Build plugin and create archive. Execute build:clean, build:clone, build:install, build:assets, build:archive.">
+
+		<echo msg="Full build" />
+
+		<phingcall target="build:clean" />
+		<phingcall target="build:clone" />
+		<phingcall target="build:install" />
+		<phingcall target="build:archive" />
+	</target>
+
+	<!-- ============================================  -->
+	<!-- Target: bump:prerelease                       -->
+	<!-- ============================================  -->
+	<target name="bump:prerelease" description="Bump prerelease version in packages.json, composer.json and mizar.php files.">
+
+		<echo msg="Bumping version in packages.json, composer.json and mizar.php files." />
+
+		<exec command="npm run bump:prerelease" passthru="true" checkreturn="true" />
+	</target>
+
+	<!-- ============================================  -->
+	<!-- Target: bump:patch                            -->
+	<!-- ============================================  -->
+	<target name="bump:patch" description="Bump patch version in packages.json, composer.json and mizar.php files.">
+
+		<echo msg="Bumping version in packages.json, composer.json and mizar.php files." />
+
+		<exec command="npm run bump:patch" passthru="true" checkreturn="true" />
+	</target>
+
+	<!-- ============================================  -->
+	<!-- Target: bump:minor                            -->
+	<!-- ============================================  -->
+	<target name="bump:minor" description="Bump minor version in packages.json, composer.json and mizar.php files.">
+
+		<echo msg="Bumping version in packages.json, composer.json and mizar.php files." />
+
+		<exec command="npm run bump:minor" passthru="true" checkreturn="true" />
+	</target>
+
+	<!-- ============================================  -->
+	<!-- Target: bump:major                            -->
+	<!-- ============================================  -->
+	<target name="bump:major" description="Bump major version in packages.json, composer.json and mizar.php files.">
+
+		<echo msg="Bumping version in packages.json, composer.json and mizar.php files." />
+
+		<exec command="npm run bump:major" passthru="true" checkreturn="true" />
+	</target>
+
+	<!-- ============================================  -->
+	<!-- Target: changelog                             -->
+	<!-- ============================================  -->
+	<target name="changelog" description="Generate changelog based on commits.">
+
+		<echo msg="Generate changelog based on commits." />
+
+		<exec command="./node_modules/.bin/conventional-changelog -p angular -i CHANGELOG.md -s -r 0" />
+	</target>
+
+</project>

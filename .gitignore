@@ -1,0 +1,25 @@
+# Ignore .env files
+.env
+
+# Ignore wordpress itself
+wordpress
+
+# Ignore vendor lib
+vendor
+node_modules
+
+# Ignore generated assets
+css
+js
+img
+fonts
+
+# Ignore build
+build
+
+# Reports
+coverage
+clover.xml
+
+# Leftovers
+.checksums
