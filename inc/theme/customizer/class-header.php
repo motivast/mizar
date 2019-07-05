@@ -156,7 +156,7 @@ class Header {
 					'mime-type' => 'image/svg+xml',
 				];
 
-				wp_update_attachment_metadata( $logo2x_id, $metadata );
+				wp_update_attachment_metadata( $logo_id, $metadata );
 			}
 
 			return;
@@ -191,7 +191,7 @@ class Header {
 						'mime-type' => $logo_resized['mime-type'],
 					];
 
-					wp_update_attachment_metadata( $logo2x_id, $metadata );
+					wp_update_attachment_metadata( $logo_id, $metadata );
 				}
 			}
 
