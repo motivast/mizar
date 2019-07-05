@@ -3,14 +3,14 @@
  * Mizar theme functions
  */
 
-if ( ! function_exists( 'mizar_logo' ) ) {
+if ( ! function_exists( 'mizar_get_logo' ) ) {
 
 	/**
 	 * Display logo from theme customizer.
 	 *
 	 * @return void
 	 */
-	function mizar_logo() {
+	function mizar_get_logo() {
 
 		$logo   = get_theme_mod( 'mizar_header_logo' );
 		$width  = get_theme_mod( 'mizar_header_logo_width' );
@@ -49,14 +49,14 @@ if ( ! function_exists( 'mizar_logo' ) ) {
 		$img_format = '<img %s>';
 		$link_format = '<a %s>%s</a>';
 
-		$html = sprintf( $img_format, mizar_attr( $attr_img ) );
-		$html = sprintf( $link_format, mizar_attr( $attr_link ), $html );
+		$html = sprintf( $img_format, mizar_get_attr( $attr_img ) );
+		$html = sprintf( $link_format, mizar_get_attr( $attr_link ), $html );
 
 		return $html;
 	}
 }
 
-if ( ! function_exists( 'mizar_attr' ) ) {
+if ( ! function_exists( 'mizar_get_attr' ) ) {
 
 	/**
 	 * Function provided to generate html attributes from array.
@@ -65,7 +65,7 @@ if ( ! function_exists( 'mizar_attr' ) ) {
 	 *
 	 * @return string
 	 */
-	function mizar_attr( $attr ) {
+	function mizar_get_attr( $attr ) {
 
 		$output = [];
 
