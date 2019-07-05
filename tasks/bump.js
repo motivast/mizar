@@ -18,11 +18,24 @@ let defaults = {
 let options = minimist(process.argv.slice(2), defaults);
 
 /**
+ * Task provided for prerelease bumping of the composer package manager
+ */
+gulp.task('bump:composer', function() {
+
+	return gulp.src([
+		config.dist + '/composer.json',
+	])
+		.pipe(bump({
+			type: options.type
+		}))
+		.pipe(gulp.dest(config.dist));
+
+});
+
+/**
  * Task provided for prerelease bumping of the package manager files
  */
 gulp.task('bump:packages', function() {
-
-	console.log(config.dist + 'package.json');
 
 	return gulp.src([
 		config.dist + '/package.json',
@@ -94,6 +107,7 @@ gulp.task('bump:constant', function () {
  * and prerelease types.
  */
 gulp.task('bump', gulp.series([
+	'bump:composer',
 	'bump:packages',
 	'bump:theme',
 	'bump:constant'

@@ -1,12 +1,14 @@
 {
   "name": "@motivast/mizar",
   "description": "Eye catching, content oriented WordPress theme. Great for mizar or any site where content is a king.",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "license": "GPL-2.0+",
   "private": true,
   "dependencies": {
-    "@babel/core": "^7.0.0",
-    "@babel/register": "^7.0.0",
+    "@babel/core": "^7.4.4",
+    "@babel/preset-env": "^7.4.4",
+    "@babel/register": "^7.4.4",
+    "browserslist": "^4.6.3",
     "gulp": "4.0.0",
     "gulp-bump": "^3.1.3",
     "minimist": "^1.2.0"
@@ -14,10 +16,26 @@
   "engines": {
     "node": ">=10.0.0"
   },
+  "browserslist": [
+    "last 3 versions",
+    "safari >= 8",
+    "ie >= 11"
+  ],
+  "babel": {
+    "presets": [
+      [
+        "@babel/preset-env",
+        {
+          "useBuiltIns": "usage",
+          "corejs": 3
+        }
+      ]
+    ]
+  },
   "scripts": {
-    "bump:prerelease": "NODE_ENV=production gulp bump --type prerelease --require babel-register --gulpfile tasks",
-    "bump:patch": "NODE_ENV=production gulp bump --type patch --require babel-register --gulpfile tasks",
-    "bump:minor": "NODE_ENV=production gulp bump --type minor --require babel-register --gulpfile tasks",
-    "bump:major": "NODE_ENV=production gulp bump --type major --require babel-register --gulpfile tasks"
+    "bump:prerelease": "NODE_ENV=production gulp bump --type prerelease --require @babel/register --gulpfile tasks",
+    "bump:patch": "NODE_ENV=production gulp bump --type patch --require @babel/register --gulpfile tasks",
+    "bump:minor": "NODE_ENV=production gulp bump --type minor --require @babel/register --gulpfile tasks",
+    "bump:major": "NODE_ENV=production gulp bump --type major --require @babel/register --gulpfile tasks"
   }
 }
