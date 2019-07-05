@@ -1,7 +1,7 @@
 {
   "name": "@motivast/mizar",
   "description": "Eye catching, content oriented WordPress theme. Great for mizar or any site where content is a king.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "license": "GPL-2.0+",
   "private": true,
   "dependencies": {

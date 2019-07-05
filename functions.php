@@ -27,7 +27,7 @@ if ( ! defined( 'WPINC' ) ) {
 }
 
 if ( ! defined( 'MIZAR_VERSION' ) )
-	define( 'MIZAR_VERSION', '0.1.0' );
+	define( 'MIZAR_VERSION', '0.2.0' );
 
 /**
  * Load autoloader to not bother to requiring classes.
