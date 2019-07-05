@@ -56,9 +56,7 @@ class Assets {
 	 *
 	 * @since    1.0.0
 	 */
-	public function register_scripts() {
-		wp_register_script( $this->theme['id'], $this->theme['url'] . '/js/scripts.bundle.js', array(), $this->theme['version'], true );
-	}
+	public function register_scripts() {}
 
 	/**
 	 * Register production scripts.
@@ -72,9 +70,7 @@ class Assets {
 	 *
 	 * @since    1.0.0
 	 */
-	public function register_min_scripts() {
-		wp_register_script( $this->theme['id'], $this->theme['url'] . '/js/scripts.min.js', array(), $this->theme['version'], true );
-	}
+	public function register_min_scripts() {}
 
 	/**
 	 * Enqueue scripts.
@@ -87,10 +83,7 @@ class Assets {
 	 *
 	 * @since    1.0.0
 	 */
-	public function enqueue_scripts() {
-
-		wp_enqueue_script( $this->theme['id'] );
-	}
+	public function enqueue_scripts() {}
 
 	/**
 	 * Enqueue scripts.
@@ -103,10 +96,7 @@ class Assets {
 	 *
 	 * @since    1.0.0
 	 */
-	public function enqueue_min_scripts() {
-
-		$this->enqueue_scripts();
-	}
+	public function enqueue_min_scripts() {}
 
 	/**
 	 * Register styles.
@@ -120,13 +110,7 @@ class Assets {
 	 *
 	 * @since    1.0.0
 	 */
-	public function register_styles() {
-
-		/**
-		 * Main theme style
-		 */
-		wp_register_style( $this->theme['id'], $this->theme['url'] . '/css/style.css', array(), $this->theme['version'], 'all' );
-	}
+	public function register_styles() {}
 
 	/**
 	 * Register styles.
@@ -140,13 +124,7 @@ class Assets {
 	 *
 	 * @since    1.0.0
 	 */
-	public function register_min_styles() {
-
-		/**
-		 * Main theme style
-		 */
-		wp_register_style( $this->theme['id'], $this->theme['url'] . '/css/style.min.css', array(), $this->theme['version'], 'all' );
-	}
+	public function register_min_styles() {}
 
 	/**
 	 * Enqueue styles.
@@ -159,13 +137,7 @@ class Assets {
 	 *
 	 * @since    1.0.0
 	 */
-	public function enqueue_styles() {
-
-		/**
-		 * Main theme style
-		 */
-		wp_enqueue_style( $this->theme['id'] );
-	}
+	public function enqueue_styles() {}
 
 	/**
 	 * Enqueue styles.
