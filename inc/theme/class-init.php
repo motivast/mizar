@@ -66,6 +66,7 @@ class Init {
 
 		$this->theme['theme/setup']  = new Setup( $this->theme );
 		$this->theme['theme/assets'] = new Assets( $this->theme );
+		$this->theme['theme/nav'] = new Nav( $this->theme );
 		$this->theme['theme/uploader'] = new Uploader( $this->theme );
 		$this->theme['theme/customizer'] = new CustomizerInit( $this->theme );
 	}
@@ -81,6 +82,7 @@ class Init {
 
 		$this->theme['theme/setup']->run();
 		$this->theme['theme/assets']->run();
+		$this->theme['theme/nav']->run();
 		$this->theme['theme/uploader']->run();
 		$this->theme['theme/customizer']->run();
 	}
