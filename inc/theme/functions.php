@@ -83,3 +83,38 @@ if ( ! function_exists( 'mizar_attr' ) ) {
 		return join( $output , ' ' );
 	}
 }
+
+if ( ! function_exists( 'mizar_render' ) ) {
+
+	/**
+	 * Function provided to render php file to the html string
+	 *
+	 * @param string $partial Partial path
+	 * @param array  $vars     Partial variables
+	 *
+	 * @return string html output
+	 */
+	function mizar_render( $partial, $vars = array() ) {
+
+		if ( is_array( $vars ) && ! empty( $vars ) ) {
+			extract( $vars );
+		}
+
+		try {
+			if ( ! file_exists( $partial ) ) {
+				throw new \Exception( sprintf( 'Partial file "%s" do not exist.', $partial ) );
+			}
+
+			ob_start();
+
+			include $partial;
+
+			$output = ob_get_clean();
+		} catch ( \Exception $e ) {
+			ob_end_clean();
+			throw $e;
+		}
+
+		return $output;
+	}
+}
