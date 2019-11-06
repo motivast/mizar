@@ -68,7 +68,7 @@ class Nav {
 		}
 
 		$level = 'nav__level-0';
-		$level_theme = sprintf('nav--%s__level-0', $theme_location_class );
+		$level_theme = sprintf('nav--%s--level-0', $theme_location_class );
 
 		$args['container_class'] .= sprintf( 'nav nav--%s', $theme_location_class );
 		$args['menu_class']      .= sprintf( ' menu %s %s', $level, $level_theme );
@@ -98,8 +98,10 @@ class Nav {
 			$theme_location_class = $args->theme_location;
 		}
 
-		$classes[] = 'nav__level-' . $depth . '__item';
-		$classes[] = sprintf('nav--%s__level-%s__item', $theme_location_class, $depth);
+		$classes[] = 'nav__item';
+		$classes[] = sprintf('nav--%s__item', $theme_location_class);
+		$classes[] = 'nav--level-' . $depth . '__item';
+		$classes[] = sprintf('nav--%s--level-%s__item', $theme_location_class, $depth);
 
 		return $classes;
 
@@ -122,8 +124,8 @@ class Nav {
 			$theme_location_class = $args->theme_location;
 		}
 
-		$classes[] = 'nav__level-' . ( $depth + 1 );
-		$classes[] = sprintf('nav--%s__level-%s__item', $theme_location_class, ( $depth + 1 ));
+		$classes[] = 'nav--level-' . ( $depth + 1 );
+		$classes[] = sprintf('nav--%s--level-%s', $theme_location_class, ( $depth + 1 ));
 
 		return $classes;
 
